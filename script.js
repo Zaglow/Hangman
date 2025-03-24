@@ -10,6 +10,7 @@ let isArabic = false;
 let startTime = 0;
 let score = 0;
 let timerInterval = null;
+let playersFinished = 0; // Track completed players
 
 const canvas = document.getElementById("hangman-canvas");
 const ctx = canvas.getContext("2d");
@@ -27,7 +28,7 @@ const message = document.getElementById("message");
 const hintDisplay = document.getElementById("hint-display");
 const timer = document.getElementById("timer");
 const currentPlayerName = document.getElementById("current-player-name");
-const currentPlayerDisplay = document.getElementById("current-player"); // Fixed typo here
+const currentPlayerDisplay = document.getElementById("current-player");
 const scorePopup = document.getElementById("score-popup");
 const readyPopup = document.getElementById("ready-popup");
 const leaderboard = document.getElementById("leaderboard");
@@ -54,10 +55,18 @@ function drawHangman() {
 
 // Word Display and Guess Handling
 function displayWord() {
-    const display = selectedWord
-        .split("")
-        .map(letter => (guessedLetters.includes(letter) || letter === " " ? letter : "_"))
-        .join(" ");
+    const wordArray = selectedWord.split("");
+    let display;
+    if (isArabic) {
+        // Reverse for display to ensure RTL order, but keep logical order for guessing
+        display = wordArray
+            .map(letter => (guessedLetters.includes(letter) || letter === " " ? letter : "_"))
+            .join(" ");
+    } else {
+        display = wordArray
+            .map(letter => (guessedLetters.includes(letter) || letter === " " ? letter : "_"))
+            .join(" ");
+    }
     wordDisplay.textContent = display.toUpperCase();
     if (isArabic) wordDisplay.classList.add("rtl");
     else wordDisplay.classList.remove("rtl");
@@ -77,11 +86,11 @@ function handleGuess(letter) {
         if (incorrectGuesses >= 6) endGame(false);
     }
 }
-
+// keyboard
 function createKeyboard() {
     keyboard.innerHTML = "";
     const englishAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("");
-    const arabicAlphabet = "ابتثجحخدذرزسشصضطظعغفقكلمنهوىةأإء0123456789".split("");
+    const arabicAlphabet = "ابتثجحخدذرزسشصضطظعغفقكلمنهوىةأإءي0123456789".split(""); // Added ي before numbers
     const alphabet = isArabic ? arabicAlphabet : englishAlphabet;
     alphabet.forEach(letter => {
         const button = document.createElement("button");
@@ -134,6 +143,7 @@ function endGame(won) {
             message.textContent = `💀 Game Over! Word: "${selectedWord}"`;
         }
         showScorePopup(score);
+        playersFinished++; // Increment finished players
     }
 }
 
@@ -155,9 +165,13 @@ function updatePlayerList() {
 function assignWords() {
     const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
     for (let i = 0; i < players.length; i++) {
-        const wordOwner = shuffledPlayers[(i + 1) % players.length]; // Next player’s word
-        players[i].assignedWord = wordOwner.word;
-        players[i].assignedHint = wordOwner.hint;
+        // Ensure no player gets their own word by checking and reassigning if needed
+        let wordOwnerIndex = (i + 1) % players.length;
+        while (shuffledPlayers[wordOwnerIndex].name === players[i].name) {
+            wordOwnerIndex = (wordOwnerIndex + 1) % players.length; // Move to next player
+        }
+        players[i].assignedWord = shuffledPlayers[wordOwnerIndex].word;
+        players[i].assignedHint = shuffledPlayers[wordOwnerIndex].hint;
     }
 }
 
@@ -166,6 +180,7 @@ function startPartyGame() {
     partySetup.style.display = "none";
     secretInputPhase.style.display = "block";
     currentPlayerIndex = 0;
+    playersFinished = 0; // Reset finished count
     promptSecretInput();
 }
 
@@ -183,17 +198,17 @@ function promptSecretInput() {
 }
 
 function showReadyPopup() {
-    soloGameArea.style.display = "block"; // Ensure game area is visible
+    soloGameArea.style.display = "block";
     document.getElementById("ready-message").textContent = `Ready, ${players[currentPlayerIndex].name}?`;
     readyPopup.style.display = "block";
 }
 
 function nextPlayer() {
-    currentPlayerIndex++;
-    if (currentPlayerIndex >= players.length) {
+    if (playersFinished >= players.length) {
         showLeaderboard();
         return;
     }
+    currentPlayerIndex = (currentPlayerIndex + 1) % players.length; // Cycle through players
     showReadyPopup();
 }
 
@@ -285,6 +300,7 @@ function showMainMenu() {
     currentPlayerDisplay.textContent = "";
     players = [];
     currentPlayerIndex = 0;
+    playersFinished = 0;
 }
 
 // Event Listeners
@@ -358,7 +374,7 @@ document.getElementById("ready-btn").addEventListener("click", () => {
     isArabic = /[\u0600-\u06FF]/.test(selectedWord);
     currentPlayerDisplay.textContent = `${players[currentPlayerIndex].name} start!`;
     resetGame();
-    startTimer(); // Ensure timer starts here
+    startTimer();
 });
 
 document.getElementById("next-btn").addEventListener("click", () => {
