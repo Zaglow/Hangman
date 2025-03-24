@@ -58,7 +58,6 @@ function displayWord() {
     const wordArray = selectedWord.split("");
     let display;
     if (isArabic) {
-        // Reverse for display to ensure RTL order, but keep logical order for guessing
         display = wordArray
             .map(letter => (guessedLetters.includes(letter) || letter === " " ? letter : "_"))
             .join(" ");
@@ -86,11 +85,11 @@ function handleGuess(letter) {
         if (incorrectGuesses >= 6) endGame(false);
     }
 }
-// keyboard
+
 function createKeyboard() {
     keyboard.innerHTML = "";
     const englishAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("");
-    const arabicAlphabet = "ابتثجحخدذرزسشصضطظعغفقكلمنهوىةأإءي0123456789".split(""); // Added ي before numbers
+    const arabicAlphabet = "ابتثجحخدذرزسشصضطظعغفقكلمنهوىةأإءي0123456789".split(""); // Added ي
     const alphabet = isArabic ? arabicAlphabet : englishAlphabet;
     alphabet.forEach(letter => {
         const button = document.createElement("button");
@@ -143,7 +142,7 @@ function endGame(won) {
             message.textContent = `💀 Game Over! Word: "${selectedWord}"`;
         }
         showScorePopup(score);
-        playersFinished++; // Increment finished players
+        playersFinished++;
     }
 }
 
@@ -165,10 +164,9 @@ function updatePlayerList() {
 function assignWords() {
     const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
     for (let i = 0; i < players.length; i++) {
-        // Ensure no player gets their own word by checking and reassigning if needed
         let wordOwnerIndex = (i + 1) % players.length;
         while (shuffledPlayers[wordOwnerIndex].name === players[i].name) {
-            wordOwnerIndex = (wordOwnerIndex + 1) % players.length; // Move to next player
+            wordOwnerIndex = (wordOwnerIndex + 1) % players.length;
         }
         players[i].assignedWord = shuffledPlayers[wordOwnerIndex].word;
         players[i].assignedHint = shuffledPlayers[wordOwnerIndex].hint;
@@ -180,7 +178,7 @@ function startPartyGame() {
     partySetup.style.display = "none";
     secretInputPhase.style.display = "block";
     currentPlayerIndex = 0;
-    playersFinished = 0; // Reset finished count
+    playersFinished = 0;
     promptSecretInput();
 }
 
@@ -188,7 +186,7 @@ function promptSecretInput() {
     if (currentPlayerIndex >= players.length) {
         secretInputPhase.style.display = "none";
         assignWords();
-        currentPlayerIndex = Math.floor(Math.random() * players.length); // Random start
+        currentPlayerIndex = Math.floor(Math.random() * players.length);
         showReadyPopup();
         return;
     }
@@ -208,7 +206,7 @@ function nextPlayer() {
         showLeaderboard();
         return;
     }
-    currentPlayerIndex = (currentPlayerIndex + 1) % players.length; // Cycle through players
+    currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
     showReadyPopup();
 }
 
@@ -217,7 +215,7 @@ function showLeaderboard() {
     leaderboard.style.display = "block";
     const table = document.getElementById("leaderboard-table");
     table.innerHTML = "<tr><th>Player</th><th>Score</th></tr>";
-    players.sort((a, b) => b.score - a.score); // Sort by score descending
+    players.sort((a, b) => b.score - a.score);
     players.forEach(p => {
         const row = document.createElement("tr");
         row.innerHTML = `<td>${p.name}</td><td>${p.score}</td>`;
@@ -241,16 +239,16 @@ function startSoloGame(language) {
         { word: "BRIDGE", hint: "A structure over a river" }
     ];
     const arabicWords = [
-        { word: "كتاب", hint: "شيء تقرأه" }, // Book: Something you read
-        { word: "سيارة", hint: "وسيلة نقل" }, // Car: A means of transport
-        { word: "تفاحة", hint: "فاكهة حمراء" }, // Apple: A red fruit
-        { word: "مدرسة", hint: "مكان للتعلم" }, // School: A place for learning
-        { word: "123", hint: "رقم بسيط" }, // 123: A simple number
-        { word: "جبل", hint: "ارتفاع طبيعي" }, // Mountain: A natural elevation
-        { word: "بحر", hint: "مسطح مائي كبير" }, // Sea: A large body of water
-        { word: "شمس", hint: "نجم يضيء النهار" }, // Sun: A star that lights the day
-        { word: "قمر", hint: "يضيء الليل" }, // Moon: Lights the night
-        { word: "شجرة", hint: "نبات طويل" } // Tree: A tall plant
+        { word: "كتاب", hint: "شيء تقرأه" },
+        { word: "سيارة", hint: "وسيلة نقل" },
+        { word: "تفاحة", hint: "فاكهة حمراء" },
+        { word: "مدرسة", hint: "مكان للتعلم" },
+        { word: "123", hint: "رقم بسيط" },
+        { word: "جبل", hint: "ارتفاع طبيعي" },
+        { word: "بحر", hint: "مسطح مائي كبير" },
+        { word: "شمس", hint: "نجم يضيء النهار" },
+        { word: "قمر", hint: "يضيء الليل" },
+        { word: "شجرة", hint: "نبات طويل" }
     ];
     const words = isArabic ? arabicWords : englishWords;
     const random = words[Math.floor(Math.random() * words.length)];
