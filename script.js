@@ -10,7 +10,7 @@ let isArabic = false;
 let startTime = 0;
 let score = 0;
 let timerInterval = null;
-let playersFinished = 0; // Track completed players
+let playersFinished = 0;
 
 const canvas = document.getElementById("hangman-canvas");
 const ctx = canvas.getContext("2d");
@@ -89,7 +89,7 @@ function handleGuess(letter) {
 function createKeyboard() {
     keyboard.innerHTML = "";
     const englishAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("");
-    const arabicAlphabet = "ابتثجحخدذرزسشصضطظعغفقكلمنهوىةأإءي0123456789".split(""); // Added ي
+    const arabicAlphabet = "ابتثجحخدذرزسشصضطظعغفقكلمنهوىةأإءي0123456789".split("");
     const alphabet = isArabic ? arabicAlphabet : englishAlphabet;
     alphabet.forEach(letter => {
         const button = document.createElement("button");
@@ -119,7 +119,7 @@ function calculateScore() {
 }
 
 function showScorePopup(score) {
-    const stars = Math.ceil(score / 200); // 1 star per 200 points, max 5
+    const stars = Math.ceil(score / 200);
     document.getElementById("popup-score").textContent = `Score: ${score}`;
     document.getElementById("popup-stars").textContent = "★".repeat(stars) + "☆".repeat(5 - stars);
     scorePopup.style.display = "block";
@@ -162,14 +162,11 @@ function updatePlayerList() {
 }
 
 function assignWords() {
-    const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+    // Create a closed loop: 1 → 2 → 3 → 1 (etc.)
     for (let i = 0; i < players.length; i++) {
-        let wordOwnerIndex = (i + 1) % players.length;
-        while (shuffledPlayers[wordOwnerIndex].name === players[i].name) {
-            wordOwnerIndex = (wordOwnerIndex + 1) % players.length;
-        }
-        players[i].assignedWord = shuffledPlayers[wordOwnerIndex].word;
-        players[i].assignedHint = shuffledPlayers[wordOwnerIndex].hint;
+        const nextPlayerIndex = (i + 1) % players.length; // Next player in sequence
+        players[i].assignedWord = players[nextPlayerIndex].word;
+        players[i].assignedHint = players[nextPlayerIndex].hint;
     }
 }
 
