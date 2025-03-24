@@ -82,6 +82,12 @@
             letter-spacing: 8px;
             margin: 20px 0;
             color: #333;
+            direction: ltr; /* Default LTR, overridden by .rtl */
+        }
+
+        .word-display.rtl {
+            direction: rtl; /* RTL for Arabic */
+            unicode-bidi: embed; /* Ensures correct character order */
         }
 
         #hint-display, #timer, #message, #current-player {
