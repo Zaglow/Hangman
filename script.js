@@ -1,4 +1,3 @@
-// Game State
 let gameMode = "";
 let players = [];
 let currentPlayerIndex = 0;
@@ -11,11 +10,15 @@ let startTime = 0;
 let score = 0;
 let timerInterval = null;
 let playersFinished = 0;
+let soundEnabled = true;
+
+const clickSound = new Audio("sounds/click.mp3");
+const correctSound = new Audio("sounds/correct.mp3");
+const wrongSound = new Audio("sounds/wrong.mp3");
 
 const canvas = document.getElementById("hangman-canvas");
 const ctx = canvas.getContext("2d");
 
-// DOM Elements
 const mainMenu = document.getElementById("main-menu");
 const languageSelect = document.getElementById("language-select");
 const soloGameArea = document.getElementById("solo-game-area");
@@ -32,40 +35,49 @@ const currentPlayerDisplay = document.getElementById("current-player");
 const scorePopup = document.getElementById("score-popup");
 const readyPopup = document.getElementById("ready-popup");
 const leaderboard = document.getElementById("leaderboard");
+const soundToggle = document.getElementById("sound-toggle");
 
-// Drawing Functions (Adjusted for 300x375 canvas)
+soundToggle.addEventListener("click", () => {
+    soundEnabled = !soundEnabled;
+    soundToggle.textContent = soundEnabled ? "🔊" : "🔇";
+});
+
+function playSound(sound) {
+    if (soundEnabled) {
+        sound.currentTime = 0;
+        sound.play().catch(err => console.log("Audio play failed:", err));
+    }
+}
+
 function drawBase() {
-    ctx.lineWidth = 4; // 3 * 1.33
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#0288d1";
     ctx.beginPath();
-    ctx.moveTo(15, 360); ctx.lineTo(285, 360); // 10, 240 * 1.5; 190, 240 * 1.5
-    ctx.moveTo(75, 360); ctx.lineTo(75, 30); // 50, 240 * 1.5; 50, 20 * 1.5
-    ctx.lineTo(180, 30); ctx.lineTo(180, 60); // 120, 20 * 1.5; 120, 40 * 1.5
+    ctx.moveTo(20, 330); ctx.lineTo(260, 330);
+    ctx.moveTo(70, 330); ctx.lineTo(70, 40);
+    ctx.lineTo(180, 40); ctx.lineTo(180, 70);
     ctx.stroke();
 }
-function drawHead() { ctx.beginPath(); ctx.arc(180, 90, 30, 0, Math.PI * 2); ctx.stroke(); } // 120, 60, 20 * 1.5
-function drawBody() { ctx.beginPath(); ctx.moveTo(180, 120); ctx.lineTo(180, 210); ctx.stroke(); } // 120, 80 * 1.5; 120, 140 * 1.5
-function drawLeftArm() { ctx.beginPath(); ctx.moveTo(180, 135); ctx.lineTo(150, 180); ctx.stroke(); } // 120, 90 * 1.5; 100, 120 * 1.5
-function drawRightArm() { ctx.beginPath(); ctx.moveTo(180, 135); ctx.lineTo(210, 180); ctx.stroke(); } // 120, 90 * 1.5; 140, 120 * 1.5
-function drawLeftLeg() { ctx.beginPath(); ctx.moveTo(180, 210); ctx.lineTo(150, 270); ctx.stroke(); } // 120, 140 * 1.5; 100, 180 * 1.5
-function drawRightLeg() { ctx.beginPath(); ctx.moveTo(180, 210); ctx.lineTo(210, 270); ctx.stroke(); } // 120, 140 * 1.5; 140, 180 * 1.5
+function drawHead() { ctx.beginPath(); ctx.arc(180, 100, 30, 0, Math.PI * 2); ctx.stroke(); }
+function drawBody() { ctx.moveTo(180, 130); ctx.lineTo(180, 200); ctx.stroke(); }
+function drawLeftArm() { ctx.moveTo(180, 150); ctx.lineTo(150, 180); ctx.stroke(); }
+function drawRightArm() { ctx.moveTo(180, 150); ctx.lineTo(210, 180); ctx.stroke(); }
+function drawLeftLeg() { ctx.moveTo(180, 200); ctx.lineTo(150, 250); ctx.stroke(); }
+function drawRightLeg() { ctx.moveTo(180, 200); ctx.lineTo(210, 250); ctx.stroke(); }
 function drawHangman() {
     const parts = [drawHead, drawBody, drawLeftArm, drawRightArm, drawLeftLeg, drawRightLeg];
-    if (incorrectGuesses <= parts.length) parts[incorrectGuesses - 1]();
+    if (incorrectGuesses <= parts.length) {
+        ctx.beginPath();
+        parts[incorrectGuesses - 1]();
+        ctx.stroke();
+    }
 }
 
-// Word Display and Guess Handling
 function displayWord() {
     const wordArray = selectedWord.split("");
-    let display;
-    if (isArabic) {
-        display = wordArray
-            .map(letter => (guessedLetters.includes(letter) || letter === " " ? letter : "_"))
-            .join(" ");
-    } else {
-        display = wordArray
-            .map(letter => (guessedLetters.includes(letter) || letter === " " ? letter : "_"))
-            .join(" ");
-    }
+    const display = wordArray
+        .map(letter => (guessedLetters.includes(letter) || letter === " " ? letter : "_"))
+        .join(" ");
     wordDisplay.textContent = display.toUpperCase();
     if (isArabic) wordDisplay.classList.add("rtl");
     else wordDisplay.classList.remove("rtl");
@@ -76,8 +88,10 @@ function handleGuess(letter) {
     if (guessedLetters.includes(letter)) return;
     guessedLetters.push(letter);
     if (selectedWord.includes(letter)) {
+        playSound(correctSound);
         displayWord();
     } else {
+        playSound(wrongSound);
         incorrectGuesses++;
         drawHangman();
         const button = document.querySelector(`button[data-letter="${letter}"]`);
@@ -96,6 +110,7 @@ function createKeyboard() {
         button.textContent = letter;
         button.setAttribute("data-letter", letter);
         button.onclick = () => {
+            playSound(clickSound);
             button.disabled = true;
             handleGuess(letter.toUpperCase());
         };
@@ -103,7 +118,6 @@ function createKeyboard() {
     });
 }
 
-// Timer and Scoring
 function startTimer() {
     clearInterval(timerInterval);
     startTime = Date.now();
@@ -130,16 +144,14 @@ function endGame(won) {
     clearInterval(timerInterval);
     const score = calculateScore();
     if (gameMode === "solo") {
-        message.textContent = won
-            ? "🎉 Great job! You guessed it perfectly!"
-            : "😊 Nice try! Better luck next time!";
+        message.textContent = won ? "🎉 You Win!" : "😔 Game Over!";
         showScorePopup(score);
     } else {
         if (won) {
-            message.textContent = `🎉 ${players[currentPlayerIndex].name} wins!`;
+            message.textContent = `🎉 ${players[currentPlayerIndex].name} Wins!`;
             players[currentPlayerIndex].score += score;
         } else {
-            message.textContent = `💀 Game Over! Word: "${selectedWord}"`;
+            message.textContent = `💀 Word was: "${selectedWord}"`;
         }
         showScorePopup(score);
         playersFinished++;
@@ -150,7 +162,6 @@ function disableAllButtons() {
     document.querySelectorAll(".keyboard button").forEach(btn => btn.disabled = true);
 }
 
-// Party Mode Logic
 function addPlayer(name) {
     players.push({ name, word: "", hint: "", score: 0, assignedWord: "", assignedHint: "" });
     updatePlayerList();
@@ -170,7 +181,7 @@ function assignWords() {
 }
 
 function startPartyGame() {
-    if (players.length < 2) return alert("Add at least two players!");
+    if (players.length < 2) return alert("Need at least 2 players!");
     partySetup.style.display = "none";
     secretInputPhase.style.display = "block";
     currentPlayerIndex = 0;
@@ -186,14 +197,14 @@ function promptSecretInput() {
         showReadyPopup();
         return;
     }
-    currentPlayerName.textContent = `${players[currentPlayerIndex].name}, enter your word and hint:`;
+    currentPlayerName.textContent = `${players[currentPlayerIndex].name}'s Turn`;
     document.getElementById("secret-word").value = "";
     document.getElementById("secret-hint").value = "";
 }
 
 function showReadyPopup() {
     soloGameArea.style.display = "block";
-    document.getElementById("ready-message").textContent = `Ready, ${players[currentPlayerIndex].name}?`;
+    document.getElementById("ready-message").textContent = `${players[currentPlayerIndex].name}, Ready?`;
     readyPopup.style.display = "block";
 }
 
@@ -219,32 +230,21 @@ function showLeaderboard() {
     });
 }
 
-// Solo Mode Logic
 function startSoloGame(language) {
     isArabic = language === "arabic";
     const englishWords = [
-        { word: "PYTHON", hint: "A popular programming language" },
-        { word: "GUITAR", hint: "A stringed musical instrument" },
-        { word: "PIZZA", hint: "An Italian dish" },
-        { word: "ROBOT", hint: "A programmable machine" },
-        { word: "GALAXY", hint: "A system of stars" },
-        { word: "12345", hint: "A simple sequence" },
-        { word: "FOREST", hint: "A large area with trees" },
-        { word: "OCEAN", hint: "A vast body of water" },
-        { word: "CANDLE", hint: "A source of light" },
-        { word: "BRIDGE", hint: "A structure over a river" }
+        { word: "PYTHON", hint: "Coding language" },
+        { word: "GUITAR", hint: "Music maker" },
+        { word: "PIZZA", hint: "Italian treat" },
+        { word: "ROBOT", hint: "Smart machine" },
+        { word: "GALAXY", hint: "Star system" }
     ];
     const arabicWords = [
-        { word: "كتاب", hint: "شيء تقرأه" },
+        { word: "كتاب", hint: "للقراءة" },
         { word: "سيارة", hint: "وسيلة نقل" },
-        { word: "تفاحة", hint: "فاكهة حمراء" },
-        { word: "مدرسة", hint: "مكان للتعلم" },
-        { word: "123", hint: "رقم بسيط" },
-        { word: "جبل", hint: "ارتفاع طبيعي" },
-        { word: "بحر", hint: "مسطح مائي كبير" },
-        { word: "شمس", hint: "نجم يضيء النهار" },
-        { word: "قمر", hint: "يضيء الليل" },
-        { word: "شجرة", hint: "نبات طويل" }
+        { word: "تفاحة", hint: "فاكهة" },
+        { word: "مدرسة", hint: "مكان التعلم" },
+        { word: "شمس", hint: "تضيء النهار" }
     ];
     const words = isArabic ? arabicWords : englishWords;
     const random = words[Math.floor(Math.random() * words.length)];
@@ -253,19 +253,17 @@ function startSoloGame(language) {
     resetGame();
 }
 
-// Online Mode (Simulated)
 function hostOnlineGame() {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    document.getElementById("game-code").textContent = `Game Code: ${code}`;
+    document.getElementById("game-code").textContent = `Code: ${code}`;
     startPartyGame();
 }
 
 function joinOnlineGame(code) {
-    alert(`Joining game with code: ${code}`);
+    alert(`Joining: ${code}`);
     startPartyGame();
 }
 
-// Reset Game State
 function resetGame() {
     guessedLetters = [];
     incorrectGuesses = 0;
@@ -280,7 +278,6 @@ function resetGame() {
     if (gameMode === "solo") startTimer();
 }
 
-// Navigation
 function showMainMenu() {
     mainMenu.style.display = "flex";
     languageSelect.style.display = "none";
@@ -297,38 +294,43 @@ function showMainMenu() {
     playersFinished = 0;
 }
 
-// Event Listeners
 document.getElementById("solo-btn").addEventListener("click", () => {
+    playSound(clickSound);
     gameMode = "solo";
     mainMenu.style.display = "none";
     languageSelect.style.display = "block";
 });
 
 document.getElementById("english-btn").addEventListener("click", () => {
+    playSound(clickSound);
     languageSelect.style.display = "none";
     soloGameArea.style.display = "block";
     startSoloGame("english");
 });
 
 document.getElementById("arabic-btn").addEventListener("click", () => {
+    playSound(clickSound);
     languageSelect.style.display = "none";
     soloGameArea.style.display = "block";
     startSoloGame("arabic");
 });
 
 document.getElementById("party-btn").addEventListener("click", () => {
+    playSound(clickSound);
     gameMode = "party";
     mainMenu.style.display = "none";
     partySetup.style.display = "block";
 });
 
 document.getElementById("online-btn").addEventListener("click", () => {
+    playSound(clickSound);
     gameMode = "online";
     mainMenu.style.display = "none";
     onlineSetup.style.display = "block";
 });
 
 document.getElementById("add-player-btn").addEventListener("click", () => {
+    playSound(clickSound);
     const nameInput = document.getElementById("new-player-name");
     const name = nameInput.value.trim();
     if (name) {
@@ -337,9 +339,13 @@ document.getElementById("add-player-btn").addEventListener("click", () => {
     }
 });
 
-document.getElementById("start-party-btn").addEventListener("click", startPartyGame);
+document.getElementById("start-party-btn").addEventListener("click", () => {
+    playSound(clickSound);
+    startPartyGame();
+});
 
 document.getElementById("submit-secret-btn").addEventListener("click", () => {
+    playSound(clickSound);
     const word = document.getElementById("secret-word").value.trim().toUpperCase();
     const hint = document.getElementById("secret-hint").value.trim();
     if (word && hint) {
@@ -348,11 +354,12 @@ document.getElementById("submit-secret-btn").addEventListener("click", () => {
         currentPlayerIndex++;
         promptSecretInput();
     } else {
-        alert("Please enter both a word and a hint!");
+        alert("Enter a word and hint!");
     }
 });
 
 document.getElementById("close-popup").addEventListener("click", () => {
+    playSound(clickSound);
     scorePopup.style.display = "none";
     if (gameMode === "solo") {
         document.getElementById("next-btn").style.display = "block";
@@ -362,27 +369,53 @@ document.getElementById("close-popup").addEventListener("click", () => {
 });
 
 document.getElementById("ready-btn").addEventListener("click", () => {
+    playSound(clickSound);
     readyPopup.style.display = "none";
     selectedWord = players[currentPlayerIndex].assignedWord;
     hint = players[currentPlayerIndex].assignedHint;
     isArabic = /[\u0600-\u06FF]/.test(selectedWord);
-    currentPlayerDisplay.textContent = `${players[currentPlayerIndex].name} start!`;
+    currentPlayerDisplay.textContent = `${players[currentPlayerIndex].name}'s Turn`;
     resetGame();
     startTimer();
 });
 
 document.getElementById("next-btn").addEventListener("click", () => {
+    playSound(clickSound);
     startSoloGame(isArabic ? "arabic" : "english");
 });
 
-document.getElementById("host-online-btn").addEventListener("click", hostOnlineGame);
+document.getElementById("host-online-btn").addEventListener("click", () => {
+    playSound(clickSound);
+    hostOnlineGame();
+});
+
 document.getElementById("join-online-btn").addEventListener("click", () => {
+    playSound(clickSound);
     const code = document.getElementById("join-code").value;
     if (code) joinOnlineGame(code);
 });
 
-document.getElementById("solo-back-btn").addEventListener("click", showMainMenu);
-document.getElementById("party-back-btn").addEventListener("click", showMainMenu);
-document.getElementById("online-back-btn").addEventListener("click", showMainMenu);
-document.getElementById("language-back-btn").addEventListener("click", showMainMenu);
-document.getElementById("leaderboard-back-btn").addEventListener("click", showMainMenu);
+document.getElementById("solo-back-btn").addEventListener("click", () => {
+    playSound(clickSound);
+    showMainMenu();
+});
+
+document.getElementById("party-back-btn").addEventListener("click", () => {
+    playSound(clickSound);
+    showMainMenu();
+});
+
+document.getElementById("online-back-btn").addEventListener("click", () => {
+    playSound(clickSound);zzzzzzzzz
+    showMainMenu();
+});
+
+document.getElementById("language-back-btn").addEventListener("click", () => {
+    playSound(clickSound);
+    showMainMenu();
+});
+
+document.getElementById("leaderboard-back-btn").addEventListener("click", () => {
+    playSound(clickSound);
+    showMainMenu();
+});

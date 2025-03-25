@@ -3,305 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hangman Game - Multiplayer Edition</title>
-    <style>
+    <title>Hangmen! Online</title>
+    <link rel="icon" type="image/png" href="assets/Logo.png" >
+        <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: #f4f7fa;
-            margin: 0;
-            padding: 10px;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             min-height: 100vh;
+            padding: 10px;
+            color: #333;
             overflow-y: auto;
         }
-
-        h1, h2 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px; /* 10px * 2 */
-        }
-
-        h1 {
-            font-size: 3rem; /* 2rem * 1.5 */
-        }
-
-        h2 {
-            font-size: 2.4rem; /* 1.6rem * 1.5 */
-        }
-
         .container {
-            background: #fff;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 480px;
-            box-sizing: border-box;
-        }
-
-        .menu, .party-setup, .game-area, .online-setup, .language-select {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        button {
-            padding: 15px 20px; /* 12px 20px * 1.25 */
-            font-size: 1.5rem; /* 1rem * 1.5 */
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.3s;
             width: 100%;
-            box-sizing: border-box;
-        }
-
-        button:hover {
-            background-color: #45a049;
-            transform: scale(1.02);
-        }
-
-        button.back-btn, #next-btn {
-            background-color: #888;
-            margin-top: 20px;
-        }
-
-        button.back-btn:hover, #next-btn:hover {
-            background-color: #666;
-        }
-
-        .keyboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); /* 40px * 1.25 */
-            gap: 8px;
-            margin-top: 20px;
-        }
-
-        .keyboard button {
-            padding: 10px;
-            font-size: 1.8rem; /* 1.2rem * 1.5 */
-        }
-
-        .keyboard button:disabled {
-            background-color: #ccc;
-        }
-
-        .word-display {
-            font-size: 2.4rem; /* 2rem * 1.2 */
-            letter-spacing: 8px;
-            margin: 20px 0;
-            color: #333;
-            direction: ltr;
-            word-wrap: break-word;
-        }
-
-        .word-display.rtl {
-            direction: rtl;
-            unicode-bidi: embed;
-        }
-
-        #hint-display, #timer, #message, #current-player {
-            font-size: 1.5rem; /* 1.2rem * 1.25 */
-            color: #555;
-            word-wrap: break-word;
-        }
-
-        canvas {
-            border: 3px solid #333;
-            background-color: #fff;
-            border-radius: 5px;
-            width: 100%;
-            max-width: 300px; /* 200px * 1.5 */
-            height: 375px; /* 250px * 1.5 */
-            margin: 0 auto;
-            display: block;
-        }
-
-        .player-input {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .player-input input {
-            padding: 12px;
-            width: 100%;
-            margin: 5px 0;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1.5rem;
-            box-sizing: border-box;
-        }
-
-        .hidden-input-phase {
-            text-align: center;
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .hidden-input-phase input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 3px solid #4CAF50;
-            border-radius: 8px;
-            font-size: 1.5rem;
-            box-sizing: border-box;
-        }
-
-        .hidden-input-phase button {
-            background-color: #2196F3;
-            margin-top: 15px;
-        }
-
-        .hidden-input-phase button:hover {
-            background-color: #1976D2;
-        }
-
-        .party-setup, .game-area, .online-setup, #secret-input-phase, .language-select {
-            display: none;
-        }
-
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 80%;
             max-width: 400px;
+            height: 100vh;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-y: auto;
+            position: relative;
         }
-
-        .popup h3 {
-            font-size: 2.4rem; /* 1.6rem * 1.5 */
+        h1 { font-size: 2.5rem; text-align: center; color: #0277bd; margin-bottom: 15px; margin-top: 40px; font-weight: 700; }
+        #logo_big {
+    display: block; /* Ensures centering works with margin */
+    margin: 40px auto 15px; /* Matches h1: 40px top, 15px bottom */
+    width: 100%; /* Roughly matches the visual size of 2.5rem text; adjust as needed */
+    height: auto; /* Maintains aspect ratio */
+    max-width: 100%; /* Prevents overflow on small screens */
+}
+        h2 { font-size: 1.8rem; text-align: center; color: #0288d1; margin-bottom: 15px; font-weight: 500; }
+        .menu, .language-select, .game-area, .party-setup, .online-setup, .hidden-input-phase {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Increased from 15px to 20px */
+            flex-grow: 1;
+            justify-content: center;
         }
-
-        .popup button {
-            margin-top: 15px;
+        button {
+            padding: 10px;
+            font-size: 1.2rem;
+            background: #0288d1;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 90%;
+            font-weight: 500;
+            text-align: center;
+            align-self: center;
+            margin: 10px;
         }
-
-        .stars {
-            font-size: 3rem; /* 2rem * 1.5 */
-            color: #FFD700;
+        button:hover, button:active { background: #0277bd; }
+        button.back-btn, #next-btn { background: #78909c; }
+        button.back-btn:hover, #next-btn:hover { background: #607d8b; }
+        .keyboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(48px, 1fr)); gap: 12px; margin-top: 15px; } /* Increased from 8px to 12px */
+        .keyboard button { padding: 12px; font-size: 1.4rem; background: #b3e5fc; color: #0277bd; border-radius: 8px; }
+        .keyboard button:disabled { background: #e0e0e0; color: #9e9e9e; opacity: 0.7; }
+        .word-display { font-size: 2rem; letter-spacing: 6px; text-align: center; margin: 15px 0; color: #0277bd; font-weight: 700; word-wrap: break-word; }
+        .word-display.rtl { direction: rtl; unicode-bidi: embed; }
+        #hint-display, #timer, #message, #current-player { font-size: 1.2rem; text-align: center; color: #555; margin: 10px 0; }
+        canvas { width: 100%; max-width: 280px; height: 350px; border: 2px solid #0288d1; background: #fff; border-radius: 10px; margin: 0 auto; display: block; }
+        .player-input { display: flex; flex-direction: row; gap: 10px; }
+        input { padding: 20px; font-size: 1.2rem; border: 2px solid #b3e5fc; border-radius: 8px; width: 100%; background: #f5f5f5; color: #333; }
+        input:focus { outline: none; border-color: #0288d1; background: #fff; }
+        .hidden-input-phase button { background: #26a69a; }
+        .hidden-input-phase button:hover { background: #00897b; }
+        .party-setup, .game-area, .online-setup, #secret-input-phase, .language-select { display: none; }
+        .popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); width: 85%; max-width: 360px; text-align: center; z-index: 10; }
+        .popup h3 { font-size: 1.8rem; color: #0277bd; margin-bottom: 15px; }
+        .stars { font-size: 2.5rem; color: #ffca28; margin: 10px 0; }
+        #leaderboard { display: none; flex-grow: 1; }
+        #leaderboard table { width: 100%; border-collapse: collapse; font-size: 1.2rem; margin-top: 15px; }
+        #leaderboard th, #leaderboard td { padding: 12px; border: 1px solid #b3e5fc; }
+        #leaderboard th { background: #0288d1; color: #fff; }
+        #player-list p { font-size: 1.2rem; color: #555; padding: 5px 0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .popup, .game-area, .party-setup, .online-setup, .language-select, #secret-input-phase { animation: fadeIn 0.3s ease-in; }
+        #add-player-btn {background-color: #03a494; font-size: 25
+            px; width: 40px; height: 40px; text-align: center; border-radius: 5px;}
+        .sound-toggle {
+            position: absolute;
+            top: 10px;
+            left: 90%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 32px;
+            background: #fff;
+            border: 2px solid #0288d1;
+            border-radius: 50%;
+            padding: 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #0288d1;
+            transition: background 0.3s;
         }
-
-        #leaderboard {
-            display: none;
-            margin-top: 20px;
-        }
-
-        #leaderboard table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 1.5rem;
-        }
-
-        #leaderboard th, #leaderboard td {
-            padding: 15px;
-            border: 2px solid #ddd;
-        }
-
-        #leaderboard th {
-            background-color: #4CAF50;
-            color: white;
-        }
+        .sound-toggle:hover { background: #e0f7fa; }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Hangman Game</h1>
+        <button id="sound-toggle" class="sound-toggle">🔊</button>
+        <img src="assets/Logo big.png" id="logo_big" > 
         <h2 id="current-player"></h2>
-
-        <!-- Main Menu -->
         <div class="menu" id="main-menu">
             <button id="solo-btn">Solo 🎮</button>
-            <button id="party-btn">Party Mode 🏠 🥳</button>
-            <button id="online-btn">Online Party 🌎 🎉</button>
+            <button id="party-btn">Party 🥳</button>
+            <button id="online-btn">Online 🌐</button>
         </div>
-
-        <!-- Language Selection for Solo -->
         <div class="language-select" id="language-select">
-            <h2>Choose Language</h2>
+            <h2>Pick a Language</h2>
             <button id="english-btn">English</button>
-            <button id="arabic-btn">Arabic</button>
-            <button class="back-btn" id="language-back-btn">Back to Menu</button>
+            <button id="arabic-btn">عربي</button>
+            <button class="back-btn" id="language-back-btn">Back</button>
         </div>
-
-        <!-- Solo Game Area -->
         <div class="game-area" id="solo-game-area">
-            <canvas id="hangman-canvas" width="300" height="375"></canvas>
+            <canvas id="hangman-canvas" width="280" height="350"></canvas>
             <p id="hint-display"></p>
             <div class="word-display" id="word-display">_ _ _ _ _</div>
             <div class="keyboard" id="keyboard"></div>
             <div id="timer"></div>
             <div id="message"></div>
             <button id="next-btn" style="display: none;">Next Word</button>
-            <button class="back-btn" id="solo-back-btn">Back to Menu</button>
+            <button class="back-btn" id="solo-back-btn">Back</button>
         </div>
-
-        <!-- Party Mode Setup -->
         <div class="party-setup" id="party-setup">
             <h2>Party Mode</h2>
             <div class="player-input">
-                <input type="text" id="new-player-name" placeholder="Enter player name">
-                <button id="add-player-btn">Add</button>
+                <input type="text" id="new-player-name" placeholder="Player name"> 
+                <button id="add-player-btn">+</button>
             </div>
             <div id="player-list"></div>
-            <button id="start-party-btn">Start Game</button>
-            <button class="back-btn" id="party-back-btn">Back to Menu</button>
+            <button id="start-party-btn">Start</button>
+            <button class="back-btn" id="party-back-btn">Back</button>
         </div>
-
-        <!-- Secret Input Phase for Party Mode -->
         <div id="secret-input-phase" class="hidden-input-phase">
             <h2 id="current-player-name"></h2>
-            <input type="text" id="secret-word" placeholder="Enter your secret word">
-            <input type="text" id="secret-hint" placeholder="Enter a hint">
+            <input type="text" id="secret-word" placeholder="Secret word">
+            <input type="text" id="secret-hint" placeholder="Hint">
             <button id="submit-secret-btn">Submit</button>
         </div>
-
-        <!-- Online Party Setup -->
         <div class="online-setup" id="online-setup">
             <h2>Online Party</h2>
             <button id="host-online-btn">Host Game</button>
-            <input id="join-code" placeholder="Enter Game Code">
-            <button id="join-online-btn">Join Game</button>
+            <input id="join-code" placeholder="Game Code">
+            <button id="join-online-btn">Join</button>
             <p id="game-code"></p>
-            <button class="back-btn" id="online-back-btn">Back to Menu</button>
+            <button class="back-btn" id="online-back-btn">Back</button>
         </div>
-
-        <!-- Score Pop-up -->
         <div class="popup" id="score-popup">
-            <h3>Game Over!</h3>
+            <h3>Well done!</h3>
             <p id="popup-score"></p>
             <div class="stars" id="popup-stars"></div>
             <button id="close-popup">OK</button>
         </div>
-
-        <!-- Ready Pop-up -->
         <div class="popup" id="ready-popup">
             <h3 id="ready-message"></h3>
-            <button id="ready-btn">Ready</button>
+            <button id="ready-btn">Let's go!</button>
         </div>
-
-        <!-- Leaderboard -->
         <div id="leaderboard">
             <h2>Leaderboard</h2>
             <table id="leaderboard-table"></table>
-            <button class="back-btn" id="leaderboard-back-btn">Back to Menu</button>
+            <button class="back-btn" id="leaderboard-back-btn">Back</button>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
