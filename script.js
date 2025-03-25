@@ -33,21 +33,21 @@ const scorePopup = document.getElementById("score-popup");
 const readyPopup = document.getElementById("ready-popup");
 const leaderboard = document.getElementById("leaderboard");
 
-// Drawing Functions
+// Drawing Functions (Scaled 3x)
 function drawBase() {
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 9; // 3 * 3
     ctx.beginPath();
-    ctx.moveTo(10, 240); ctx.lineTo(190, 240);
-    ctx.moveTo(50, 240); ctx.lineTo(50, 20);
-    ctx.lineTo(120, 20); ctx.lineTo(120, 40);
+    ctx.moveTo(30, 720); ctx.lineTo(570, 720); // 10, 240 * 3; 190, 240 * 3
+    ctx.moveTo(150, 720); ctx.lineTo(150, 60); // 50, 240 * 3; 50, 20 * 3
+    ctx.lineTo(360, 60); ctx.lineTo(360, 120); // 120, 20 * 3; 120, 40 * 3
     ctx.stroke();
 }
-function drawHead() { ctx.beginPath(); ctx.arc(120, 60, 20, 0, Math.PI * 2); ctx.stroke(); }
-function drawBody() { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(120, 140); ctx.stroke(); }
-function drawLeftArm() { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(100, 120); ctx.stroke(); }
-function drawRightArm() { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 120); ctx.stroke(); }
-function drawLeftLeg() { ctx.beginPath(); ctx.moveTo(120, 140); ctx.lineTo(100, 180); ctx.stroke(); }
-function drawRightLeg() { ctx.beginPath(); ctx.moveTo(120, 140); ctx.lineTo(140, 180); ctx.stroke(); }
+function drawHead() { ctx.beginPath(); ctx.arc(360, 180, 60, 0, Math.PI * 2); ctx.stroke(); } // 120, 60, 20 * 3
+function drawBody() { ctx.beginPath(); ctx.moveTo(360, 240); ctx.lineTo(360, 420); ctx.stroke(); } // 120, 80 * 3; 120, 140 * 3
+function drawLeftArm() { ctx.beginPath(); ctx.moveTo(360, 270); ctx.lineTo(300, 360); ctx.stroke(); } // 120, 90 * 3; 100, 120 * 3
+function drawRightArm() { ctx.beginPath(); ctx.moveTo(360, 270); ctx.lineTo(420, 360); ctx.stroke(); } // 120, 90 * 3; 140, 120 * 3
+function drawLeftLeg() { ctx.beginPath(); ctx.moveTo(360, 420); ctx.lineTo(300, 540); ctx.stroke(); } // 120, 140 * 3; 100, 180 * 3
+function drawRightLeg() { ctx.beginPath(); ctx.moveTo(360, 420); ctx.lineTo(420, 540); ctx.stroke(); } // 120, 140 * 3; 140, 180 * 3
 function drawHangman() {
     const parts = [drawHead, drawBody, drawLeftArm, drawRightArm, drawLeftLeg, drawRightLeg];
     if (incorrectGuesses <= parts.length) parts[incorrectGuesses - 1]();
@@ -162,9 +162,8 @@ function updatePlayerList() {
 }
 
 function assignWords() {
-    // Create a closed loop: 1 → 2 → 3 → 1 (etc.)
     for (let i = 0; i < players.length; i++) {
-        const nextPlayerIndex = (i + 1) % players.length; // Next player in sequence
+        const nextPlayerIndex = (i + 1) % players.length;
         players[i].assignedWord = players[nextPlayerIndex].word;
         players[i].assignedHint = players[nextPlayerIndex].hint;
     }
