@@ -33,21 +33,21 @@ const scorePopup = document.getElementById("score-popup");
 const readyPopup = document.getElementById("ready-popup");
 const leaderboard = document.getElementById("leaderboard");
 
-// Drawing Functions (Scaled 3x)
+// Drawing Functions (Adjusted for 300x375 canvas)
 function drawBase() {
-    ctx.lineWidth = 9; // 3 * 3
+    ctx.lineWidth = 4; // 3 * 1.33
     ctx.beginPath();
-    ctx.moveTo(30, 720); ctx.lineTo(570, 720); // 10, 240 * 3; 190, 240 * 3
-    ctx.moveTo(150, 720); ctx.lineTo(150, 60); // 50, 240 * 3; 50, 20 * 3
-    ctx.lineTo(360, 60); ctx.lineTo(360, 120); // 120, 20 * 3; 120, 40 * 3
+    ctx.moveTo(15, 360); ctx.lineTo(285, 360); // 10, 240 * 1.5; 190, 240 * 1.5
+    ctx.moveTo(75, 360); ctx.lineTo(75, 30); // 50, 240 * 1.5; 50, 20 * 1.5
+    ctx.lineTo(180, 30); ctx.lineTo(180, 60); // 120, 20 * 1.5; 120, 40 * 1.5
     ctx.stroke();
 }
-function drawHead() { ctx.beginPath(); ctx.arc(360, 180, 60, 0, Math.PI * 2); ctx.stroke(); } // 120, 60, 20 * 3
-function drawBody() { ctx.beginPath(); ctx.moveTo(360, 240); ctx.lineTo(360, 420); ctx.stroke(); } // 120, 80 * 3; 120, 140 * 3
-function drawLeftArm() { ctx.beginPath(); ctx.moveTo(360, 270); ctx.lineTo(300, 360); ctx.stroke(); } // 120, 90 * 3; 100, 120 * 3
-function drawRightArm() { ctx.beginPath(); ctx.moveTo(360, 270); ctx.lineTo(420, 360); ctx.stroke(); } // 120, 90 * 3; 140, 120 * 3
-function drawLeftLeg() { ctx.beginPath(); ctx.moveTo(360, 420); ctx.lineTo(300, 540); ctx.stroke(); } // 120, 140 * 3; 100, 180 * 3
-function drawRightLeg() { ctx.beginPath(); ctx.moveTo(360, 420); ctx.lineTo(420, 540); ctx.stroke(); } // 120, 140 * 3; 140, 180 * 3
+function drawHead() { ctx.beginPath(); ctx.arc(180, 90, 30, 0, Math.PI * 2); ctx.stroke(); } // 120, 60, 20 * 1.5
+function drawBody() { ctx.beginPath(); ctx.moveTo(180, 120); ctx.lineTo(180, 210); ctx.stroke(); } // 120, 80 * 1.5; 120, 140 * 1.5
+function drawLeftArm() { ctx.beginPath(); ctx.moveTo(180, 135); ctx.lineTo(150, 180); ctx.stroke(); } // 120, 90 * 1.5; 100, 120 * 1.5
+function drawRightArm() { ctx.beginPath(); ctx.moveTo(180, 135); ctx.lineTo(210, 180); ctx.stroke(); } // 120, 90 * 1.5; 140, 120 * 1.5
+function drawLeftLeg() { ctx.beginPath(); ctx.moveTo(180, 210); ctx.lineTo(150, 270); ctx.stroke(); } // 120, 140 * 1.5; 100, 180 * 1.5
+function drawRightLeg() { ctx.beginPath(); ctx.moveTo(180, 210); ctx.lineTo(210, 270); ctx.stroke(); } // 120, 140 * 1.5; 140, 180 * 1.5
 function drawHangman() {
     const parts = [drawHead, drawBody, drawLeftArm, drawRightArm, drawLeftLeg, drawRightLeg];
     if (incorrectGuesses <= parts.length) parts[incorrectGuesses - 1]();
