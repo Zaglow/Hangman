@@ -90,48 +90,14 @@
             color: #0277bd;
             font-weight: 700;
             word-wrap: break-word;
-            position: fixed;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 360px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 5;
-            animation: float 2s ease-in-out infinite;
+            margin: 15px 0;
         }
-        .dark-mode .word-display {
-            color: #66b3ff;
-            background: rgba(44, 62, 80, 0.9);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
+        .dark-mode .word-display { color: #66b3ff; }
         .word-display.rtl { direction: rtl; unicode-bidi: embed; }
-        @keyframes float {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-5px); }
-        }
         #hint-display, #message, #current-player { font-size: 1.2rem; text-align: center; color: #555; margin: 10px 0; }
         .dark-mode #hint-display, .dark-mode #message, .dark-mode #current-player { color: #bdc3c7; }
-        #timer {
-            font-size: 1.2rem;
-            text-align: center;
-            color: #555;
-            position: fixed;
-            top: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 360px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 5;
-        }
-        .dark-mode #timer { color: #bdc3c7; background: rgba(44, 62, 80, 0.9); }
+        #timer { font-size: 1.2rem; text-align: center; color: #555; margin: 10px 0; }
+        .dark-mode #timer { color: #bdc3c7; }
         canvas { width: 100%; max-width: 280px; height: 350px; border: 2px solid #0288d1; background: #fff; border-radius: 10px; margin: 20px auto 0; display: block; }
         .dark-mode canvas { border-color: #66b3ff; background: #34495e; }
         .player-input { display: flex; flex-direction: row; gap: 10px; align-items: center; }
@@ -190,12 +156,33 @@
             color: #0288d1;
             transition: background 0.3s;
         }
-        .sound-toggle { left: 85%; transform: translateX(-50%); }
-        .music-toggle { left: 95%; transform: translateX(-50%); }
-        .dark-mode-toggle { left: 10%; transform: translateX(50%); }
+        .sound-toggle { left: 75%; transform: translateX(-50%); } /* Moved left from 85% */
+        .music-toggle { left: 85%; transform: translateX(-50%); } /* Moved left from 95% */
+        .dark-mode-toggle { left: 5%; transform: translateX(50%); } /* Moved left from 10% */
         .dark-mode .sound-toggle, .dark-mode .music-toggle, .dark-mode .dark-mode-toggle { background: #34495e; border-color: #66b3ff; color: #66b3ff; }
         .sound-toggle:hover, .music-toggle:hover, .dark-mode-toggle:hover { background: #e0f7fa; }
         .dark-mode .sound-toggle:hover, .dark-mode .music-toggle:hover, .dark-mode .dark-mode-toggle:hover { background: #2a4060; }
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 360px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            z-index: 5;
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            transition: opacity 0.3s;
+        }
+        .dark-mode .fixed-header {
+            background: rgba(44, 62, 80, 0.9);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -218,10 +205,16 @@
             <button class="back-btn" id="language-back-btn">Back</button>
         </div>
         <div class="game-area" id="solo-game-area">
-            <div id="timer"></div>
-            <div class="word-display" id="word-display">_ _ _ _ _</div>
             <canvas id="hangman-canvas" width="280" height="350"></canvas>
             <p id="hint-display"></p>
+            <div id="word-timer-container">
+                <div id="timer"></div>
+                <div class="word-display" id="word-display">_ _ _ _ _</div>
+            </div>
+            <div class="fixed-header" id="fixed-header">
+                <div id="fixed-timer"></div>
+                <div class="word-display" id="fixed-word-display">_ _ _ _ _</div>
+            </div>
             <div class="keyboard" id="keyboard"></div>
             <div id="message"></div>
             <button id="next-btn" style="display: none;">Next Word</button>
