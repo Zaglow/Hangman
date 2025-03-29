@@ -11,10 +11,16 @@ let score = 0;
 let timerInterval = null;
 let playersFinished = 0;
 let soundEnabled = true;
+let musicEnabled = true;
+let darkMode = false;
 
 const clickSound = new Audio("sounds/click.mp3");
-const correctSound = new Audio("sounds/correct.mp3");
+const gameoverSound = new Audio("sounds/gameover.mp3");
+const themeMusic = new Audio("sounds/theme.mp3");
 const wrongSound = new Audio("sounds/wrong.mp3");
+
+themeMusic.loop = true; // Loop the background music
+themeMusic.volume = 0.5; // Set to 50% volume
 
 const canvas = document.getElementById("hangman-canvas");
 const ctx = canvas.getContext("2d");
@@ -36,10 +42,35 @@ const scorePopup = document.getElementById("score-popup");
 const readyPopup = document.getElementById("ready-popup");
 const leaderboard = document.getElementById("leaderboard");
 const soundToggle = document.getElementById("sound-toggle");
+const musicToggle = document.getElementById("music-toggle");
+const darkModeToggle = document.getElementById("dark-mode-toggle");
+
+// Start theme music on page load if enabled
+if (musicEnabled) themeMusic.play().catch(err => console.log("Music play failed:", err));
 
 soundToggle.addEventListener("click", () => {
     soundEnabled = !soundEnabled;
     soundToggle.textContent = soundEnabled ? "🔊" : "🔇";
+    playSound(clickSound);
+});
+
+musicToggle.addEventListener("click", () => {
+    musicEnabled = !musicEnabled;
+    musicToggle.textContent = musicEnabled ? "🎵" : "🔇";
+    if (musicEnabled) {
+        themeMusic.play().catch(err => console.log("Music play failed:", err));
+    } else {
+        themeMusic.pause();
+    }
+    playSound(clickSound);
+});
+
+darkModeToggle.addEventListener("click", () => {
+    darkMode = !darkMode;
+    document.body.classList.toggle("dark-mode", darkMode);
+    document.querySelector(".container").classList.toggle("dark-mode", darkMode);
+    darkModeToggle.textContent = darkMode ? "☀️" : "🌙";
+    playSound(clickSound);
 });
 
 function playSound(sound) {
@@ -49,9 +80,15 @@ function playSound(sound) {
     }
 }
 
+function playMusic() {
+    if (musicEnabled) {
+        themeMusic.play().catch(err => console.log("Music play failed:", err));
+    }
+}
+
 function drawBase() {
     ctx.lineWidth = 3;
-    ctx.strokeStyle = "#0288d1";
+    ctx.strokeStyle = darkMode ? "#66b3ff" : "#0288d1";
     ctx.beginPath();
     ctx.moveTo(20, 330); ctx.lineTo(260, 330);
     ctx.moveTo(70, 330); ctx.lineTo(70, 40);
@@ -88,7 +125,7 @@ function handleGuess(letter) {
     if (guessedLetters.includes(letter)) return;
     guessedLetters.push(letter);
     if (selectedWord.includes(letter)) {
-        playSound(correctSound);
+        playSound(clickSound); // Correct guess uses click.mp3
         displayWord();
     } else {
         playSound(wrongSound);
@@ -132,28 +169,40 @@ function calculateScore() {
     return Math.max(1000 - (timeTaken * 10) - (incorrectGuesses * 50), 0);
 }
 
-function showScorePopup(score) {
-    const stars = Math.ceil(score / 200);
-    document.getElementById("popup-score").textContent = `Score: ${score}`;
-    document.getElementById("popup-stars").textContent = "★".repeat(stars) + "☆".repeat(5 - stars);
+function showScorePopup(won) {
+    const score = calculateScore();
+    const popupTitle = document.getElementById("popup-title");
+    const popupScore = document.getElementById("popup-score");
+    const popupStars = document.getElementById("popup-stars");
+    
+    if (won) {
+        popupTitle.textContent = "Well Done! 🥳";
+        popupScore.textContent = `Score: ${score}`;
+        const stars = Math.ceil(score / 200);
+        popupStars.textContent = "★".repeat(stars) + "☆".repeat(5 - stars);
+    } else {
+        popupTitle.textContent = "Game Over! ☠️";
+        popupScore.textContent = "";
+        popupStars.textContent = "";
+        playSound(gameoverSound); // Play gameover.mp3 on loss
+    }
     scorePopup.style.display = "block";
 }
 
 function endGame(won) {
     disableAllButtons();
     clearInterval(timerInterval);
-    const score = calculateScore();
     if (gameMode === "solo") {
         message.textContent = won ? "🎉 You Win!" : "😔 Game Over!";
-        showScorePopup(score);
+        showScorePopup(won);
     } else {
         if (won) {
             message.textContent = `🎉 ${players[currentPlayerIndex].name} Wins!`;
-            players[currentPlayerIndex].score += score;
+            players[currentPlayerIndex].score += calculateScore();
         } else {
             message.textContent = `💀 Word was: "${selectedWord}"`;
         }
-        showScorePopup(score);
+        showScorePopup(won);
         playersFinished++;
     }
 }
@@ -167,9 +216,25 @@ function addPlayer(name) {
     updatePlayerList();
 }
 
+function removePlayer(index) {
+    players.splice(index, 1);
+    updatePlayerList();
+}
+
 function updatePlayerList() {
     const playerList = document.getElementById("player-list");
-    playerList.innerHTML = players.map(p => `<p>${p.name}</p>`).join("");
+    playerList.innerHTML = "";
+    players.forEach((player, index) => {
+        const p = document.createElement("p");
+        p.innerHTML = `${player.name} <button class="remove-player-btn" data-index="${index}">X</button>`;
+        playerList.appendChild(p);
+    });
+    document.querySelectorAll(".remove-player-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            playSound(clickSound);
+            removePlayer(parseInt(btn.getAttribute("data-index")));
+        });
+    });
 }
 
 function assignWords() {
@@ -181,7 +246,10 @@ function assignWords() {
 }
 
 function startPartyGame() {
-    if (players.length < 2) return alert("Need at least 2 players!");
+    if (players.length < 2) {
+        playSound(wrongSound); // Play wrong.mp3 for insufficient players
+        return alert("Need at least 2 players!");
+    }
     partySetup.style.display = "none";
     secretInputPhase.style.display = "block";
     currentPlayerIndex = 0;
@@ -289,9 +357,16 @@ function showMainMenu() {
     readyPopup.style.display = "none";
     leaderboard.style.display = "none";
     currentPlayerDisplay.textContent = "";
-    players = [];
-    currentPlayerIndex = 0;
-    playersFinished = 0;
+    document.getElementById("start-party-btn").style.display = "block";
+    document.getElementById("lets-go-btn").style.display = "none";
+}
+
+function showPartySetup() {
+    mainMenu.style.display = "none";
+    partySetup.style.display = "block";
+    updatePlayerList();
+    document.getElementById("start-party-btn").style.display = "none";
+    document.getElementById("lets-go-btn").style.display = "block";
 }
 
 document.getElementById("solo-btn").addEventListener("click", () => {
@@ -342,6 +417,20 @@ document.getElementById("add-player-btn").addEventListener("click", () => {
 document.getElementById("start-party-btn").addEventListener("click", () => {
     playSound(clickSound);
     startPartyGame();
+});
+
+document.getElementById("lets-go-btn").addEventListener("click", () => {
+    playSound(clickSound);
+    if (players.length < 2) {
+        playSound(wrongSound);
+        return alert("Need at least 2 players!");
+    }
+    partySetup.style.display = "none";
+    secretInputPhase.style.display = "block";
+    currentPlayerIndex = 0;
+    playersFinished = 0;
+    players.forEach(p => { p.score = 0; p.word = ""; p.hint = ""; p.assignedWord = ""; p.assignedHint = ""; });
+    promptSecretInput();
 });
 
 document.getElementById("submit-secret-btn").addEventListener("click", () => {
@@ -406,7 +495,7 @@ document.getElementById("party-back-btn").addEventListener("click", () => {
 });
 
 document.getElementById("online-back-btn").addEventListener("click", () => {
-    playSound(clickSound);zzzzzzzzz
+    playSound(clickSound);
     showMainMenu();
 });
 
@@ -418,4 +507,10 @@ document.getElementById("language-back-btn").addEventListener("click", () => {
 document.getElementById("leaderboard-back-btn").addEventListener("click", () => {
     playSound(clickSound);
     showMainMenu();
+});
+
+document.getElementById("rematch-btn").addEventListener("click", () => {
+    playSound(clickSound);
+    leaderboard.style.display = "none";
+    showPartySetup();
 });
