@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hangmen! Online</title>
-    <link rel="icon" type="image/png" href="assets/Logo.png" >
-        <style>
+    <link rel="icon" type="image/png" href="assets/Logo.png">
+    <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Roboto', sans-serif;
@@ -17,6 +17,11 @@
             padding: 10px;
             color: #333;
             overflow-y: auto;
+            transition: background 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #e0e0e0;
         }
         .container {
             width: 100%;
@@ -31,20 +36,25 @@
             justify-content: space-between;
             overflow-y: auto;
             position: relative;
+            transition: background 0.3s;
         }
-        h1 { font-size: 2.5rem; text-align: center; color: #0277bd; margin-bottom: 15px; margin-top: 40px; font-weight: 700; }
-        #logo_big {
-    display: block; /* Ensures centering works with margin */
-    margin: 40px auto 15px; /* Matches h1: 40px top, 15px bottom */
-    width: 100%; /* Roughly matches the visual size of 2.5rem text; adjust as needed */
-    height: auto; /* Maintains aspect ratio */
-    max-width: 100%; /* Prevents overflow on small screens */
-}
+        .container.dark-mode {
+            background: #2c3e50;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+        }
         h2 { font-size: 1.8rem; text-align: center; color: #0288d1; margin-bottom: 15px; font-weight: 500; }
+        .dark-mode h2 { color: #66b3ff; }
+        #logo_big {
+            display: block;
+            margin: 40px auto 15px;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+        }
         .menu, .language-select, .game-area, .party-setup, .online-setup, .hidden-input-phase {
             display: flex;
             flex-direction: column;
-            gap: 20px; /* Increased from 15px to 20px */
+            gap: 20px;
             flex-grow: 1;
             justify-content: center;
         }
@@ -63,39 +73,66 @@
             align-self: center;
             margin: 10px;
         }
+        .dark-mode button { background: #3498db; }
         button:hover, button:active { background: #0277bd; }
-        button.back-btn, #next-btn { background: #78909c; }
-        button.back-btn:hover, #next-btn:hover { background: #607d8b; }
-        .keyboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(48px, 1fr)); gap: 12px; margin-top: 15px; } /* Increased from 8px to 12px */
+        .dark-mode button:hover, .dark-mode button:active { background: #2980b9; }
+        button.back-btn, #next-btn, #rematch-btn { background: #78909c; }
+        .dark-mode button.back-btn, .dark-mode #next-btn, .dark-mode #rematch-btn { background: #5d6d7e; }
+        button.back-btn:hover, #next-btn:hover, #rematch-btn:hover { background: #607d8b; }
+        .dark-mode button.back-btn:hover, .dark-mode #next-btn:hover, .dark-mode #rematch-btn:hover { background: #4b5e6d; }
+        .keyboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(48px, 1fr)); gap: 12px; margin-top: 15px; }
         .keyboard button { padding: 12px; font-size: 1.4rem; background: #b3e5fc; color: #0277bd; border-radius: 8px; }
+        .dark-mode .keyboard button { background: #34495e; color: #66b3ff; }
         .keyboard button:disabled { background: #e0e0e0; color: #9e9e9e; opacity: 0.7; }
+        .dark-mode .keyboard button:disabled { background: #2c3e50; }
         .word-display { font-size: 2rem; letter-spacing: 6px; text-align: center; margin: 15px 0; color: #0277bd; font-weight: 700; word-wrap: break-word; }
+        .dark-mode .word-display { color: #66b3ff; }
         .word-display.rtl { direction: rtl; unicode-bidi: embed; }
         #hint-display, #timer, #message, #current-player { font-size: 1.2rem; text-align: center; color: #555; margin: 10px 0; }
+        .dark-mode #hint-display, .dark-mode #timer, .dark-mode #message, .dark-mode #current-player { color: #bdc3c7; }
         canvas { width: 100%; max-width: 280px; height: 350px; border: 2px solid #0288d1; background: #fff; border-radius: 10px; margin: 0 auto; display: block; }
-        .player-input { display: flex; flex-direction: row; gap: 10px; }
+        .dark-mode canvas { border-color: #66b3ff; background: #34495e; }
+        .player-input { display: flex; flex-direction: row; gap: 10px; align-items: center; }
         input { padding: 20px; font-size: 1.2rem; border: 2px solid #b3e5fc; border-radius: 8px; width: 100%; background: #f5f5f5; color: #333; }
+        .dark-mode input { border-color: #66b3ff; background: #2c3e50; color: #e0e0e0; }
         input:focus { outline: none; border-color: #0288d1; background: #fff; }
+        .dark-mode input:focus { border-color: #66b3ff; background: #34495e; }
         .hidden-input-phase button { background: #26a69a; }
+        .dark-mode .hidden-input-phase button { background: #1abc9c; }
         .hidden-input-phase button:hover { background: #00897b; }
+        .dark-mode .hidden-input-phase button:hover { background: #16a085; }
         .party-setup, .game-area, .online-setup, #secret-input-phase, .language-select { display: none; }
         .popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); width: 85%; max-width: 360px; text-align: center; z-index: 10; }
+        .dark-mode .popup { background: #2c3e50; }
         .popup h3 { font-size: 1.8rem; color: #0277bd; margin-bottom: 15px; }
+        .dark-mode .popup h3 { color: #66b3ff; }
         .stars { font-size: 2.5rem; color: #ffca28; margin: 10px 0; }
         #leaderboard { display: none; flex-grow: 1; }
         #leaderboard table { width: 100%; border-collapse: collapse; font-size: 1.2rem; margin-top: 15px; }
         #leaderboard th, #leaderboard td { padding: 12px; border: 1px solid #b3e5fc; }
+        .dark-mode #leaderboard th, .dark-mode #leaderboard td { border-color: #66b3ff; }
         #leaderboard th { background: #0288d1; color: #fff; }
-        #player-list p { font-size: 1.2rem; color: #555; padding: 5px 0; }
+        .dark-mode #leaderboard th { background: #3498db; }
+        #player-list { display: flex; flex-direction: column; gap: 10px; }
+        #player-list p { font-size: 1.2rem; color: #555; padding: 5px 0; display: flex; align-items: center; justify-content: space-between; }
+        .dark-mode #player-list p { color: #bdc3c7; }
+        .remove-player-btn {
+            background: #e74c3c;
+            width: 30px;
+            height: 30px;
+            font-size: 1rem;
+            padding: 0;
+            margin: 0 10px;
+            border-radius: 50%;
+        }
+        .remove-player-btn:hover { background: #c0392b; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .popup, .game-area, .party-setup, .online-setup, .language-select, #secret-input-phase { animation: fadeIn 0.3s ease-in; }
-        #add-player-btn {background-color: #03a494; font-size: 25
-            px; width: 40px; height: 40px; text-align: center; border-radius: 5px;}
-        .sound-toggle {
+        #add-player-btn { background-color: #03a494; font-size: 25px; width: 40px; height: 40px; text-align: center; border-radius: 5px; }
+        .dark-mode #add-player-btn { background-color: #1abc9c; }
+        .sound-toggle, .music-toggle, .dark-mode-toggle {
             position: absolute;
             top: 10px;
-            left: 90%;
-            transform: translateX(-50%);
             width: 32px;
             height: 32px;
             background: #fff;
@@ -110,14 +147,21 @@
             color: #0288d1;
             transition: background 0.3s;
         }
-        .sound-toggle:hover { background: #e0f7fa; }
+        .sound-toggle { left: 85%; transform: translateX(-50%); }
+        .music-toggle { left: 95%; transform: translateX(-50%); }
+        .dark-mode-toggle { left: 10%; transform: translateX(50%); }
+        .dark-mode .sound-toggle, .dark-mode .music-toggle, .dark-mode .dark-mode-toggle { background: #34495e; border-color: #66b3ff; color: #66b3ff; }
+        .sound-toggle:hover, .music-toggle:hover, .dark-mode-toggle:hover { background: #e0f7fa; }
+        .dark-mode .sound-toggle:hover, .dark-mode .music-toggle:hover, .dark-mode .dark-mode-toggle:hover { background: #2a4060; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <button id="sound-toggle" class="sound-toggle">🔊</button>
-        <img src="assets/Logo big.png" id="logo_big" > 
+        <button id="music-toggle" class="music-toggle">🎵</button>
+        <button id="dark-mode-toggle" class="dark-mode-toggle">🌙</button>
+        <img src="assets/Logo big.png" id="logo_big">
         <h2 id="current-player"></h2>
         <div class="menu" id="main-menu">
             <button id="solo-btn">Solo 🎮</button>
@@ -143,12 +187,13 @@
         <div class="party-setup" id="party-setup">
             <h2>Party Mode</h2>
             <div class="player-input">
-                <input type="text" id="new-player-name" placeholder="Player name"> 
+                <input type="text" id="new-player-name" placeholder="Player name">
                 <button id="add-player-btn">+</button>
             </div>
             <div id="player-list"></div>
             <button id="start-party-btn">Start</button>
             <button class="back-btn" id="party-back-btn">Back</button>
+            <button id="lets-go-btn" style="display: none;">Let's Go!</button>
         </div>
         <div id="secret-input-phase" class="hidden-input-phase">
             <h2 id="current-player-name"></h2>
@@ -165,7 +210,7 @@
             <button class="back-btn" id="online-back-btn">Back</button>
         </div>
         <div class="popup" id="score-popup">
-            <h3>Well done!</h3>
+            <h3 id="popup-title">Well done!</h3>
             <p id="popup-score"></p>
             <div class="stars" id="popup-stars"></div>
             <button id="close-popup">OK</button>
@@ -177,6 +222,7 @@
         <div id="leaderboard">
             <h2>Leaderboard</h2>
             <table id="leaderboard-table"></table>
+            <button id="rematch-btn">Rematch</button>
             <button class="back-btn" id="leaderboard-back-btn">Back</button>
         </div>
     </div>
