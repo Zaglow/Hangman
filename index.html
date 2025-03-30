@@ -52,24 +52,25 @@
         .menu, .language-select, .game-area, .party-setup, .online-setup, .hidden-input-phase, #difficulty-select, #word-list-area {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
             flex-grow: 1;
             justify-content: center;
+            align-items: center;
         }
         button {
-            padding: 10px;
-            font-size: 1.2rem;
+            padding: 8px;
+            font-size: 1rem;
             background: #0288d1;
             color: #fff;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             transition: background 0.3s;
-            width: 90%;
+            width: 85%;
             font-weight: 500;
             text-align: center;
-            align-self: center;
-            margin: 10px;
+            margin: 8px auto;
+            display: block;
         }
         .dark-mode button { background: #3498db; }
         button:hover, button:active { background: #0277bd; }
@@ -78,6 +79,18 @@
         .dark-mode button.back-btn, .dark-mode #next-btn, .dark-mode #rematch-btn { background: #5d6d7e; }
         button.back-btn:hover, #next-btn:hover, #rematch-btn:hover { background: #607d8b; }
         .dark-mode button.back-btn:hover, .dark-mode #next-btn:hover, .dark-mode #rematch-btn:hover { background: #4b5e6d; }
+        #close-settings-btn {
+            background: #e74c3c;
+        }
+        #close-settings-btn:hover {
+            background: #c0392b;
+        }
+        .dark-mode #close-settings-btn {
+            background: #ff6666;
+        }
+        .dark-mode #close-settings-btn:hover {
+            background: #ff3333;
+        }
         #easy-btn { background: #6ee072; }
         #easy-btn:hover { background: #388e3c; }
         .dark-mode #easy-btn { background: #66bb6a; }
@@ -90,8 +103,12 @@
         #hard-btn:hover { background: #d32f2f; }
         .dark-mode #hard-btn { background: #ef5350; }
         .dark-mode #hard-btn:hover { background: #e53935; }
+        #home-btn { background: #6ee072; display: none; }
+        #home-btn:hover { background: #388e3c; }
+        .dark-mode #home-btn { background: #66bb6a; }
+        .dark-mode #home-btn:hover { background: #4caf50; }
         .keyboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(48px, 1fr)); gap: 12px; margin-top: 15px; }
-        .keyboard button { padding: 12px; font-size: 1.4rem; background: #b3e5fc; color: #0277bd; border-radius: 8px; }
+        .keyboard button { padding: 12px; font-size: 1.4rem; background: #b3e5fc; color: #0277bd; border-radius: 8px; margin: 0; width: 100%; }
         .dark-mode .keyboard button { background: #34495e; color: #66b3ff; }
         .keyboard button:disabled { background: #e0e0e0; color: #9e9e9e; opacity: 0.7; }
         .dark-mode .keyboard button:disabled { background: #2c3e50; }
@@ -119,7 +136,7 @@
         .dark-mode #timer { color: #bdc3c7; }
         canvas { width: 100%; max-width: 280px; height: 350px; border: 2px solid #0288d1; background: #fff; border-radius: 10px; margin: 20px auto 0; display: block; }
         .dark-mode canvas { border-color: #66b3ff; background: #34495e; }
-        .player-input { display: flex; flex-direction: row; gap: 10px; align-items: center; }
+        .player-input { display: flex; flex-direction: row; gap: 10px; align-items: center; justify-content: center; }
         input { padding: 20px; font-size: 1.2rem; border: 2px solid #b3e5fc; border-radius: 8px; width: 100%; background: #f5f5f5; color: #333; }
         .dark-mode input { border-color: #66b3ff; background: #2c3e50; color: #e0e0e0; }
         input:focus { outline: none; border-color: #0288d1; background: #fff; }
@@ -129,8 +146,66 @@
         .hidden-input-phase button:hover { background: #00897b; }
         .dark-mode .hidden-input-phase button:hover { background: #16a085; }
         .party-setup, .game-area, .online-setup, #secret-input-phase, .language-select, #difficulty-select, #word-list-area { display: none; }
-        .popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); width: 85%; max-width: 360px; text-align: center; z-index: 10; }
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            width: 85%;
+            max-width: 360px;
+            text-align: center;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
         .dark-mode .popup { background: #2c3e50; }
+        #settings-popup { z-index: 20; } /* Added */
+        #confirm-exit-popup { z-index: 25; } /* Added */
+        #confirm-yes-btn {
+            background-color: #4CAF50; /* Green */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        #confirm-yes-btn:hover {
+            background-color: #45a049;
+        }
+        .dark-mode #confirm-yes-btn {
+            background-color: #66bb6a;
+        }
+        .dark-mode #confirm-yes-btn:hover {
+            background-color: #4caf50;
+        }
+        #confirm-no-btn {
+            background-color: #f44336; /* Red */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        #confirm-no-btn:hover {
+            background-color: #da190b;
+        }
+        .dark-mode #confirm-no-btn {
+            background-color: #ef5350;
+        }
+        .dark-mode #confirm-no-btn:hover {
+            background-color: #e53935;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
         #hearts-popup {
             display: none;
             position: fixed;
@@ -154,7 +229,7 @@
             80% { opacity: 1; }
             100% { opacity: 0; }
         }
-        .popup h3 { font-size: 1.8rem; color: #0277bd; margin-bottom: 15px; }
+        .popup h3 { font-size: 1.8rem; color: #0277bd; margin-bottom: 0; }
         .dark-mode .popup h3 { color: #66b3ff; }
         .stars { font-size: 2.5rem; color: #ffca28; margin: 10px 0; }
         #leaderboard { display: none; flex-grow: 1; }
@@ -164,8 +239,8 @@
         #leaderboard th { background: #0288d1; color: #fff; }
         .dark-mode #leaderboard th { background: #3498db; }
         #leaderboard .winner { font-weight: bold; }
-        #player-list { display: flex; flex-direction: column; gap: 10px; }
-        #player-list p { font-size: 1.2rem; color: #555; padding: 5px 0; display: flex; align-items: center; justify-content: space-between; }
+        #player-list { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        #player-list p { font-size: 1.2rem; color: #555; padding: 5px 0; display: flex; align-items: center; justify-content: space-between; width: 85%; }
         .dark-mode #player-list p { color: #bdc3c7; }
         .remove-player-btn {
             background: #e74c3c;
@@ -179,18 +254,20 @@
         .remove-player-btn:hover { background: #c0392b; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .popup, .game-area, .party-setup, .online-setup, .language-select, #secret-input-phase, #difficulty-select, #word-list-area { animation: fadeIn 0.3s ease-in; }
-        #add-player-btn { background-color: #03a494; font-size: 25px; width: 40px; height: 40px; text-align: center; border-radius: 5px; }
+        #add-player-btn { background-color: #03a494; font-size: 25px; width: 40px; height: 40px; text-align: center; border-radius: 5px; margin: 0; }
         .dark-mode #add-player-btn { background-color: #1abc9c; }
-        .sound-toggle, .music-toggle, .dark-mode-toggle, .language-toggle {
+        .settings-btn {
             position: absolute;
             top: 10px;
-            width: 32px;
-            height: 32px;
+            left: 5%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
             background: #fff;
             border: 2px solid #0288d1;
             border-radius: 50%;
             padding: 0;
-            font-size: 1rem;
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -198,13 +275,9 @@
             color: #0288d1;
             transition: background 0.3s;
         }
-        .sound-toggle { left: 75%; transform: translateX(-50%); }
-        .music-toggle { left: 85%; transform: translateX(-50%); }
-        .dark-mode-toggle { left: 5%; transform: translateX(50%); }
-        .language-toggle { left: 15%; transform: translateX(50%); }
-        .dark-mode .sound-toggle, .dark-mode .music-toggle, .dark-mode .dark-mode-toggle, .dark-mode .language-toggle { background: #34495e; border-color: #66b3ff; color: #66b3ff; }
-        .sound-toggle:hover, .music-toggle:hover, .dark-mode-toggle:hover, .language-toggle:hover { background: #e0f7fa; }
-        .dark-mode .sound-toggle:hover, .dark-mode .music-toggle:hover, .dark-mode .dark-mode-toggle:hover, .dark-mode .language-toggle:hover { background: #2a4060; }
+        .dark-mode .settings-btn { background: #34495e; border-color: #66b3ff; color: #66b3ff; }
+        .settings-btn:hover { background: #e0f7fa; }
+        .dark-mode .settings-btn:hover { background: #2a4060; }
         .fixed-header {
             position: fixed;
             top: 0;
@@ -230,6 +303,8 @@
             max-height: 300px;
             overflow-y: auto;
             padding-right: 10px;
+            text-align: center;
+            width: 100%;
         }
         #word-list p { font-size: 1.2rem; color: #555; padding: 5px 0; cursor: pointer; }
         .dark-mode #word-list p { color: #bdc3c7; }
@@ -247,21 +322,18 @@
 </head>
 <body>
     <div class="container">
-        <button id="sound-toggle" class="sound-toggle">🔊</button>
-        <button id="music-toggle" class="music-toggle">🎵</button>
-        <button id="dark-mode-toggle" class="dark-mode-toggle">🌙</button>
-        <button id="language-toggle" class="language-toggle">🇬🇧</button>
+        <button id="settings-btn" class="settings-btn">≡</button>
         <img src="assets/Logo big.png" id="logo_big">
         <h2 id="current-player"></h2>
         <div class="menu" id="main-menu">
-            <button id="solo-btn">Solo 🎮</button>
-            <button id="party-btn">Party 🥳</button>
-            <button id="online-btn">Online 🌐</button>
+            <button id="solo-btn" data-translate="Solo">Solo 🎮</button>
+            <button id="party-btn" data-translate="Party">Party 🥳</button>
+            <button id="online-btn" data-translate="Online">Online 🌐</button>
         </div>
         <div class="language-select" id="language-select">
             <h2 data-translate="Pick a Language">Pick a Language</h2>
             <button id="english-btn" data-translate="English">English</button>
-            <button id="arabic-btn" data-translate="عربي">عربي</button>
+            <button id="arabic-btn" data-translate="Arabic">عربي</button>
             <button class="back-btn" id="language-back-btn" data-translate="Back">Back</button>
         </div>
         <div id="difficulty-select" style="display: none;">
@@ -272,7 +344,7 @@
             <button class="back-btn" id="difficulty-back-btn" data-translate="Back">Back</button>
         </div>
         <div id="word-list-area" style="display: none;">
-            <h2 id="word-list-title" data-translate="Word List"></h2>
+            <h2 id="word-list-title" data-translate="Word List">Word List</h2>
             <div id="word-list"></div>
             <button id="start-word-btn" data-translate="Start Random Word">Start Random Word</button>
             <button class="back-btn" id="word-list-back-btn" data-translate="Back">Back</button>
@@ -324,12 +396,39 @@
             <p id="popup-score"></p>
             <div class="stars" id="popup-stars"></div>
             <button id="close-popup" data-translate="OK">OK</button>
+            <button id="party-next-btn" data-translate="Next" style="display: none;">Next</button>
+            <button id="solo-win-back-btn" class="back-btn" data-translate="Back" style="display: none;">Back</button>
+            <button id="solo-win-next-btn" data-translate="Next Word" style="display: none;">Next Word</button>
+            <button id="solo-lose-back-btn" class="back-btn" data-translate="Back" style="display: none;">Back</button>
+            <button id="solo-lose-try-again-btn" data-translate="Try Again" style="display: none;">Try Again</button>
         </div>
         <div class="popup" id="ready-popup">
             <h3 id="ready-message"></h3>
             <button id="ready-btn" data-translate="Let's go!">Let's go!</button>
         </div>
         <div class="popup" id="hearts-popup"></div>
+        <div class="popup" id="time-up-popup" style="display: none;">
+            <h3 id="time-up-title" data-translate="Time's Up!">Time's Up!</h3>
+            <button id="time-up-back-btn" class="back-btn" data-translate="Back">Back</button>
+            <button id="time-up-try-again-btn" data-translate="Try Again">Try Again</button>
+        </div>
+        <div class="popup" id="settings-popup" style="display: none;">
+            <h3 data-translate="Settings">Settings</h3>
+            <button id="sound-toggle-btn" data-translate="Sound">Sound 🔊</button>
+            <button id="music-toggle-btn" data-translate="Music">Music 🎵</button>
+            <button id="dark-mode-toggle-btn" data-translate="Dark Mode">Dark Mode 🌙</button>
+            <button id="language-toggle-btn" data-translate="Language">Language En</button>
+            <button id="how-to-play-btn" data-translate="How to Play">How to Play ❓</button>
+            <button id="home-btn" data-translate="Home">Home 🏠</button>
+            <button id="close-settings-btn" data-translate="Close">Close</button>
+        </div>
+        <div class="popup" id="confirm-exit-popup" style="display: none;">
+            <h3 id="confirm-exit-title"></h3>
+            <div class="button-container">
+                <button id="confirm-yes-btn" data-translate="Yes">Yes</button>
+                <button id="confirm-no-btn" data-translate="No">No</button>
+            </div>
+        </div>
         <div id="leaderboard" style="display: none;">
             <h2 data-translate="Leaderboard">Leaderboard</h2>
             <table id="leaderboard-table"></table>
